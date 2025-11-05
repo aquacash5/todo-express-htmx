@@ -1,0 +1,19 @@
+meta {
+  name: Complete Task
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/tasks/:taskId/complete
+  body: none
+  auth: inherit
+}
+
+params:path {
+  taskId: 1
+}
+
+settings {
+  encodeUrl: true
+}

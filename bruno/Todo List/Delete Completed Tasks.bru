@@ -1,0 +1,15 @@
+meta {
+  name: Delete Completed Tasks
+  type: http
+  seq: 4
+}
+
+delete {
+  url: {{baseUrl}}/tasks/complete
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}

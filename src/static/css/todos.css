@@ -1,0 +1,15 @@
+.inline {
+  display: inline;
+}
+
+.spacer {
+  height: 50px;
+}
+
+.container-fluid {
+  max-width: 800px;
+}
+
+.disabled * {
+  pointer-events: all;
+}
