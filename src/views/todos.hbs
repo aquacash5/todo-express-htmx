@@ -3,7 +3,8 @@
 <html lang="en-gb">
     <head>
         <title>Todo</title>
-        {{> default_headers}}
+        <link rel="stylesheet" href="/static/css/bootstrap.css" />
+        <link rel="stylesheet" href="/static/css/bootstrap-icons.css">
 
         <link rel="stylesheet" href="/static/css/todos.css" />
         <script src="/static/js/todos.js"></script>
@@ -13,9 +14,9 @@
         <div class="container-fluid">
             <div class="card text-dark bg-light">
                 <div class="card-header d-flex justify-content-between align-items-end">
-                    <h1>My Todo List!</h1>
+                    <h1>Todo List</h1>
                     <div>
-                        <button class="btn btn-danger btn-sm" data-task="/tasks/completed" data-action="remove">Remove Completed Tasks</button>
+                        <button class="btn btn-danger btn-sm" data-task="/tasks/completed" data-action="delete">Remove Completed Tasks</button>
                     </div>
                 </div>
                 <ul class="list-group list-group-flush">
@@ -23,17 +24,13 @@
                     <li class="list-group-item d-flex justify-content-between{{#if completed}} disabled{{/if}}">
                         <div class="d-flex align-items-center">
                             {{#if completed}}
-                                <form class="inline" method="POST" action="/tasks/{{id}}/uncomplete">
-                                    <button title="Uncomplete" type="submit" class="btn btn-light">
-                                        <i class="bi bi-check-square-fill"></i>
-                                    </button>
-                                </form>
+                            <button title="Uncomplete" class="btn btn-light" data-task="/tasks/{{id}}/uncomplete" data-action="post">
+                                <i class="bi bi-check-square-fill"></i>
+                            </button>
                             {{else}}
-                                <form class="inline" method="POST" action="/tasks/{{id}}/complete">
-                                    <button title="Complete" type="submit" class="btn btn-light">
-                                        <i class="bi bi-square-fill"></i>
-                                    </button>
-                                </form>
+                            <button title="Complete" class="btn btn-light" data-task="/tasks/{{id}}/complete" data-action="post">
+                                <i class="bi bi-square-fill"></i>
+                            </button>
                             {{/if}}
                             <span class="{{#if completed}}text-decoration-line-through{{/if}}">{{description}}</span>
                         </div>

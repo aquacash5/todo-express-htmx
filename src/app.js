@@ -5,6 +5,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { JsonStore } from "./libs/jsonStore.js";
 import { TaskList } from "./libs/taskList.js";
+import { errorResponse } from "./libs/utils.js";
 
 const HTTP_PORT = process.env.TODO_PORT || 3000;
 const BASE_DIR = path.dirname(fileURLToPath(import.meta.url));
@@ -16,10 +17,6 @@ const todosStore = await JsonStore.initialize(
 const taskList = new TaskList(await todosStore.read());
 taskList.on("update", async (todos) => await todosStore.write(todos));
 console.log();
-
-function errorResponse(err, res, status = 500) {
-  res.status(status).send(err.message);
-}
 
 const app = express();
 
@@ -41,6 +38,7 @@ app.get("/", (_req, res) => {
 app.get("/tasks", (_req, res) => {
   res.render("todos", { todos: taskList.getTasks() });
 });
+
 app.post("/tasks", (req, res) => {
   try {
     taskList.addTask(req.body.description);
@@ -49,6 +47,7 @@ app.post("/tasks", (req, res) => {
   }
   res.render("todos", { todos: taskList.getTasks() });
 });
+
 app.post("/tasks/:taskId/complete", (req, res) => {
   try {
     if (!/\d+/.test(req.params.taskId))
@@ -61,6 +60,7 @@ app.post("/tasks/:taskId/complete", (req, res) => {
   }
   res.redirect("/tasks");
 });
+
 app.post("/tasks/:taskId/uncomplete", (req, res) => {
   try {
     if (!/\d+/.test(req.params.taskId))
@@ -73,6 +73,7 @@ app.post("/tasks/:taskId/uncomplete", (req, res) => {
   }
   res.redirect("/tasks");
 });
+
 app.delete("/tasks/completed", (_req, res) => {
   try {
     taskList.removeCompletedTasks();
@@ -81,6 +82,7 @@ app.delete("/tasks/completed", (_req, res) => {
   }
   res.redirect("/tasks");
 });
+
 app.delete("/tasks/:taskId", (req, res) => {
   try {
     if (!/\d+/.test(req.params.taskId))

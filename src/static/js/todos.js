@@ -9,13 +9,28 @@ function docReady(fn) {
   }
 }
 
+function autoRedirect(res) {
+  if (res.redirected) {
+    window.location.href = res.url;
+  }
+}
+
+function handleError(msg) {
+  return (err) => console.error(msg, err);
+}
+
 docReady(function () {
   document.body.addEventListener("click", (event) => {
-    const target = event.target;
-    if (target.dataset.action != null) {
-      fetch(target.dataset.task, { method: "delete" }).then((res) => {
-        window.location.href = res.url;
-      });
+    let target = event.target;
+    while (target.dataset.action == null && target.parentNode) {
+      target = target.parentNode;
+    }
+    const action = target.dataset.action;
+    const task = target.dataset.task;
+    if (action != null) {
+      fetch(task, { method: action })
+        .then(autoRedirect)
+        .catch(handleError(`Could not "${action}" to "${task}"`));
     }
   });
 });
