@@ -11,8 +11,12 @@ export class JsonStore {
     return new JsonStore(storePath);
   }
 
-  async read() {
-    return JSON.parse(await fs.readFile(this.storePath, "utf8"));
+  async read(defaultData) {
+    try {
+      return JSON.parse(await fs.readFile(this.storePath, "utf8"));
+    } catch {
+      return defaultData;
+    }
   }
 
   async write(data) {

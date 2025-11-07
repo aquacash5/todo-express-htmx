@@ -1,9 +1,7 @@
-import bodyParser from "body-parser";
-import express from "express";
-import hbs from "hbs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { JsonStore } from "./libs/jsonStore.js";
+import { setupExpressApp } from "./libs/setup.js";
 import { TaskList } from "./libs/taskList.js";
 import { errorResponse } from "./libs/utils.js";
 
@@ -11,41 +9,30 @@ const HTTP_PORT = process.env.TODO_PORT || 3000;
 const BASE_DIR = path.dirname(fileURLToPath(import.meta.url));
 
 console.log("loading json store...");
-const todosStore = await JsonStore.initialize(
-  path.join(BASE_DIR, "data", "todos.json")
+const tasksStore = await JsonStore.initialize(
+  path.join(BASE_DIR, "data", "tasks.json")
 );
-const taskList = new TaskList(await todosStore.read());
-taskList.on("update", async (todos) => await todosStore.write(todos));
+const taskList = new TaskList(await tasksStore.read([]));
+taskList.on("update", async (tasks) => await tasksStore.write(tasks));
 console.log();
 
-const app = express();
-
-app.set("view engine", "hbs");
-app.set("views", path.join(BASE_DIR, "views"));
-hbs.registerPartials(
-  path.join(BASE_DIR, "views", "partials"),
-  function (err) {}
-);
-
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
-app.use("/static", express.static(path.join(BASE_DIR, "static")));
+const app = await setupExpressApp(BASE_DIR);
 
 app.get("/", (_req, res) => {
   res.redirect("/tasks");
 });
 
 app.get("/tasks", (_req, res) => {
-  res.render("todos", { todos: taskList.getTasks() });
+  res.render("tasks", { tasks: taskList.getTasks() });
 });
 
 app.post("/tasks", (req, res) => {
   try {
-    taskList.addTask(req.body.description);
+    const task = taskList.addTask(req.body.description);
+    res.render("partials/task", { task });
   } catch (err) {
-    return errorResponse(err, res);
+    errorResponse(err, res);
   }
-  res.render("todos", { todos: taskList.getTasks() });
 });
 
 app.post("/tasks/:taskId/complete", (req, res) => {
@@ -55,10 +42,10 @@ app.post("/tasks/:taskId/complete", (req, res) => {
 
     const taskId = Number.parseInt(req.params.taskId, 10);
     taskList.completeTask(taskId);
+    res.render("partials/task", { task: taskList.getTask(taskId) });
   } catch (err) {
-    return errorResponse(err, res);
+    errorResponse(err, res);
   }
-  res.redirect("/tasks");
 });
 
 app.post("/tasks/:taskId/uncomplete", (req, res) => {
@@ -68,19 +55,19 @@ app.post("/tasks/:taskId/uncomplete", (req, res) => {
 
     const taskId = Number.parseInt(req.params.taskId, 10);
     taskList.uncompleteTask(taskId);
+    res.render("partials/task", { task: taskList.getTask(taskId) });
   } catch (err) {
-    return errorResponse(err, res);
+    errorResponse(err, res);
   }
-  res.redirect("/tasks");
 });
 
 app.delete("/tasks/completed", (_req, res) => {
   try {
     taskList.removeCompletedTasks();
+    res.render("tasks", { tasks: taskList.getTasks() });
   } catch (err) {
-    return errorResponse(err, res);
+    errorResponse(err, res);
   }
-  res.redirect("/tasks");
 });
 
 app.delete("/tasks/:taskId", (req, res) => {
@@ -90,10 +77,10 @@ app.delete("/tasks/:taskId", (req, res) => {
 
     const taskId = Number.parseInt(req.params.taskId, 10);
     taskList.removeTask(taskId);
+    res.send(`Delted task ${taskId}`);
   } catch (err) {
-    return errorResponse(err, res);
+    errorResponse(err, res);
   }
-  res.redirect("/tasks");
 });
 
 app.listen(HTTP_PORT, (err) => {

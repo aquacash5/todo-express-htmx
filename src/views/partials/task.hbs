@@ -1,0 +1,35 @@
+<li id="task-{{task.id}}" class="list-group-item d-flex justify-content-between{{#if task.completed}} disabled{{/if}}">
+    <div class="d-flex align-items-center">
+        {{#if task.completed}}
+        <button class="btn btn-light"
+            title="Uncomplete"
+            type="button"
+            hx-post="/tasks/{{task.id}}/uncomplete"
+            hx-target="#task-{{task.id}}"
+            hx-swap="outerHTML"
+        >
+            <i class="bi bi-check-square"></i>
+        </button>
+        {{else}}
+        <button class="btn btn-light"
+            title="Complete"
+            type="button"
+            hx-post="/tasks/{{task.id}}/complete"
+            hx-target="#task-{{task.id}}"
+            hx-swap="outerHTML"
+        >
+            <i class="bi bi-square"></i>
+        </button>
+        {{/if}}
+        <span class="{{#if task.completed}}text-decoration-line-through{{/if}}">{{task.description}}</span>
+    </div>
+    <button class="btn btn-danger"
+        title="Remove"
+        type="button"
+        hx-delete="/tasks/{{task.id}}"
+        hx-target="#task-{{task.id}}"
+        hx-swap="delete"
+    >
+        <i class="bi bi-trash"></i>
+    </button>
+</li>

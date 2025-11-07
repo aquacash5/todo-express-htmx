@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+
+<html lang="en-gb">
+    <head>
+        <title>Todo list</title>
+        <link rel="stylesheet" href="/static/css/bootstrap.css" />
+        <link rel="stylesheet" href="/static/css/bootstrap-icons.css">
+        <script src="/static/js/htmx.js"></script>
+
+        <link rel="stylesheet" href="/static/css/tasks.css" />
+    </head>
+    <body>
+        <div class="spacer"></div>
+        <div class="container-fluid">
+            <div class="card text-dark bg-light">
+                <div class="card-header d-flex justify-content-between align-items-end">
+                    <h1>Todo List</h1>
+                    <div>
+                        <button
+                            class="btn btn-danger btn-sm"
+                            type="button"
+                            hx-delete="/tasks/completed"
+                            hx-target="body"
+                        >
+                            Remove Completed Tasks
+                        </button>
+                    </div>
+                </div>
+                <ul class="list-group list-group-flush">
+                    {{#each tasks as |task|}}
+                    {{> task task=task }}
+                    {{/each}}
+                    <li class="list-group-item" id="task-new">
+                        <form class="row"
+                            hx-post="/tasks"
+                            hx-target="#task-new"
+                            hx-swap="beforebegin"
+                            hx-disabled-elt="find input[type='text'], find button"
+                            hx-on::after-request="this.reset()"
+                        >
+                            <div class="d-flex">
+                                <label class="visually-hidden" for="description">Task Description</label>
+                                <input class="form-control border-0 border-bottom"
+                                    id="description"
+                                    name="description"
+                                    type="text"
+                                    placeholder="(Ex. Do the dishes)"
+                                    required
+                                />
+                                <button class="btn btn-primary"
+                                    type="submit"
+                                >
+                                    <i class="bi bi-plus-circle"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </body>
+</html>

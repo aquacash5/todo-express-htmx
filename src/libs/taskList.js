@@ -3,50 +3,56 @@ import { EventEmitter } from "node:events";
 export class TaskList extends EventEmitter {
   constructor(tasks) {
     super();
-    this.todoList = tasks;
+    this.taskList = tasks;
     this.nextId =
-      this.todoList.reduce((maxId, task) => Math.max(task.id, maxId), 0) + 1;
+      this.taskList.reduce((maxId, task) => Math.max(task.id, maxId), 0) + 1;
   }
 
   getTasks() {
-    return this.todoList;
+    return this.taskList;
+  }
+
+  getTask(id) {
+    return this.taskList.find((task) => task.id === id);
   }
 
   addTask(description) {
-    this.todoList.push({ id: this.nextId, description, completed: false });
+    const newTask = { id: this.nextId, description, completed: false };
+    this.taskList.push(newTask);
     this.nextId += 1;
-    this.emit("update", this.todoList);
+    this.emit("update", this.taskList);
+    return newTask;
   }
 
   completeTask(taskId) {
-    this.todoList = this.todoList.map((task) => {
+    this.taskList = this.taskList.map((task) => {
       if (task.id === taskId) {
         return { ...task, completed: true };
       } else {
         return task;
       }
     });
-    this.emit("update", this.todoList);
+    this.emit("update", this.taskList);
   }
 
   uncompleteTask(taskId) {
-    this.todoList = this.todoList.map((task) => {
+    this.taskList = this.taskList.map((task) => {
       if (task.id === taskId) {
         return { ...task, completed: false };
       } else {
         return task;
       }
     });
-    this.emit("update", this.todoList);
+    this.emit("update", this.taskList);
   }
 
   removeTask(taskId) {
-    this.todoList = this.todoList.filter((task) => task.id !== taskId);
-    this.emit("update", this.todoList);
+    this.taskList = this.taskList.filter((task) => task.id !== taskId);
+    this.emit("update", this.taskList);
   }
 
   removeCompletedTasks() {
-    this.todoList = this.todoList.filter((task) => !task.completed);
-    this.emit("update", this.todoList);
+    this.taskList = this.taskList.filter((task) => !task.completed);
+    this.emit("update", this.taskList);
   }
 }

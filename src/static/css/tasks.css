@@ -13,3 +13,7 @@
 .disabled * {
   pointer-events: all;
 }
+
+.gap-10 {
+  gap: 10px;
+}

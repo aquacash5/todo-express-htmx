@@ -12,7 +12,9 @@
   "packageManager": "pnpm@10.12.1",
   "dependencies": {
     "body-parser": "^2.2.0",
+    "compression": "^1.8.1",
     "express": "^5.1.0",
-    "hbs": "^4.2.0"
+    "hbs": "^4.2.0",
+    "hbs-utils": "^0.0.4"
   }
 }
