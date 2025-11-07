@@ -4,11 +4,8 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "node src/app.js"
+    "dev": "node --watch-path src src/app.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "packageManager": "pnpm@10.20.0",
   "engines": {
     "node": ">=22 <23"

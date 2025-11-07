@@ -3,23 +3,30 @@ import { fileURLToPath } from "node:url";
 import { JsonStore } from "./libs/jsonStore.js";
 import { setupExpressApp } from "./libs/setup.js";
 import { TaskList } from "./libs/taskList.js";
-import { errorResponse } from "./libs/utils.js";
+import { errorResponse, packageRoot } from "./libs/utils.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const HTTP_PORT = process.env.TODO_PORT || 3000;
-const BASE_DIR = path.dirname(fileURLToPath(import.meta.url));
 
-console.log("loading json store...");
-const tasksStore = await JsonStore.initialize(
-  path.join(BASE_DIR, "data", "tasks.json")
-);
-const taskList = new TaskList(await tasksStore.read([]));
+const DATA_DIR =
+  process.env.DATA_DIR || path.join(packageRoot(__dirname), "temp", "data");
+const DATA_FILE = path.join(DATA_DIR, "tasks.json");
+
+console.log("loading json store:", DATA_FILE);
+const tasksStore = JsonStore.initialize(DATA_FILE);
+const taskList = new TaskList(tasksStore.read([]));
 taskList.on("update", async (tasks) => await tasksStore.write(tasks));
-console.log();
 
-const app = await setupExpressApp(BASE_DIR);
+const app = setupExpressApp(__dirname);
 
 app.get("/", (_req, res) => {
   res.redirect("/tasks");
+});
+
+app.get("/health-check", (_req, res) => {
+  res.send("OK");
 });
 
 app.get("/tasks", (_req, res) => {
@@ -77,16 +84,33 @@ app.delete("/tasks/:taskId", (req, res) => {
 
     const taskId = Number.parseInt(req.params.taskId, 10);
     taskList.removeTask(taskId);
-    res.send(`Delted task ${taskId}`);
+    res.send(`Deleted task ${taskId}`);
   } catch (err) {
     errorResponse(err, res);
   }
 });
 
-app.listen(HTTP_PORT, (err) => {
+const server = app.listen(HTTP_PORT, (err) => {
   if (err) {
     console.error("Could not start service:", err);
   } else {
     console.log(`Listening on http://127.0.0.1:${HTTP_PORT}`);
   }
+});
+
+process.on("SIGTERM", () => {
+  console.log("SIGTERM signal received");
+  console.log("Closing HTTP server");
+
+  server.close((err) => {
+    if (err) {
+      console.error("HTTP server could not be cleanly closed:", err);
+      console.log("Force closing process");
+      process.exit(1);
+    } else {
+      console.log("HTTP server closed");
+      console.log("Exiting process");
+      process.exit(0);
+    }
+  });
 });

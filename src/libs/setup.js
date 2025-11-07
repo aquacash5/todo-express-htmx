@@ -2,27 +2,27 @@ import bodyParser from "body-parser";
 import compression from "compression";
 import express from "express";
 import hbs from "hbs";
-import hbsutilities from "hbs-utils";
-import { promises as fs } from "node:fs";
+import hbsUtilities from "hbs-utils";
 import path from "node:path";
+import process from "node:process";
 
-export async function setupExpressApp(baseDir) {
-  const cacheDir = path.join(baseDir, "cache");
-  await fs.mkdir(cacheDir, { recursive: true });
-
-  const hbsutils = hbsutilities(hbs);
+export function setupExpressApp(baseDir) {
+  const hbsutils = hbsUtilities(hbs);
   const app = express();
 
   app.set("view engine", "hbs");
   app.set("views", path.join(baseDir, "views"));
-  hbsutils.registerWatchedPartials(
-    path.join(baseDir, "views", "partials"),
-    function (err) {}
-  );
+
+  if (process.env.NODE_ENV === "production") {
+    hbsutils.registerPartials(path.join(baseDir, "views", "partials"));
+  } else {
+    hbsutils.registerWatchedPartials(path.join(baseDir, "views", "partials"));
+  }
 
   app.use(compression());
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(bodyParser.json());
+
   app.use("/static", express.static(path.join(baseDir, "static")));
 
   return app;
