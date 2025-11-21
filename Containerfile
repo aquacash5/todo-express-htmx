@@ -1,8 +1,8 @@
-FROM alpine:3.22.2
+FROM docker.io/node:24-alpine3.22
 WORKDIR /todo-app
 
 # Install nodejs and pnpm
-RUN apk add nodejs pnpm && rm -rf /var/cache/apk/*
+RUN npm install --global pnpm
 
 # Copy packaging files and install dependencies
 # This prevents re-running the installation if the application
