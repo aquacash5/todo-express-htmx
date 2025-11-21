@@ -36,7 +36,7 @@
                             hx-target="#task-new"
                             hx-swap="beforebegin"
                             hx-disabled-elt="find input[type='text'], find button"
-                            hx-on::after-request="this.reset()"
+                            hx-on::after-request="this.reset(); document.getElementById('description').focus()"
                         >
                             <div class="d-flex">
                                 <label class="visually-hidden" for="description">Task Description</label>
